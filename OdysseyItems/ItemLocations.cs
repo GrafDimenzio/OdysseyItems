@@ -4,9 +4,9 @@ using DSMOOServer.API.Serialized;
 namespace OdysseyItems;
 
 [Config(Name = "item_locations")]
-public class ItemLocations : Config
+public class ItemLocations : IConfig
 {
-    public Dictionary<string, List<SerializedVector3>> Locations = new()
+    public Dictionary<string, List<SerializedVector3>> Locations { get; set; } = new()
     {
         {
             "CapWorldHomeStage",

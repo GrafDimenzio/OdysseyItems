@@ -7,6 +7,7 @@ using DSMOOFramework.Events;
 using DSMOOFramework.Logger;
 using DSMOOFramework.Plugins;
 using DSMOOServer;
+using DSMOOServer.API.Enum;
 using DSMOOServer.API.Events;
 using DSMOOServer.API.Events.Args;
 using DSMOOServer.API.GameModes;
@@ -22,7 +23,8 @@ namespace OdysseyItems;
     Name = "Odyssey Items",
     Author = "Dimenzio",
     Description = "Adds Items to the game modes",
-    Version = "1.0.0"
+    Version = "1.0.0",
+    Repository = "https://github.com/GrafDimenzio/OdysseyItems"
 )]
 public class ItemManager(
     EventManager eventManager,
@@ -42,6 +44,7 @@ public class ItemManager(
 
     public readonly EventReactor<ItemEventArgs> OnItemCollected = new(eventLogger);
     public readonly EventReactor<ItemEventArgs> OnItemReturned = new(eventLogger);
+    public readonly EventReactor<ItemEventArgs> OnItemDestroyed = new(eventLogger);
     private CancellationTokenSource? _source;
 
     public ReadOnlyDictionary<ItemAttribute, Type> Items => _items.AsReadOnly();
@@ -53,7 +56,10 @@ public class ItemManager(
         eventManager.OnPlayerState.Subscribe(OnPlayerState);
         eventManager.OnPreGameStart.Subscribe(OnPreGameStart);
         eventManager.OnGameEnd.Subscribe(OnGameEnd);
+        eventManager.OnPlayerAction.Subscribe(OnPlayerAction);
+        eventManager.OnPacketReceived.Subscribe(OnPacket);
         analyzer.OnAnalyze.Subscribe(OnAnalyze);
+        Logger.Info("Odyssey Items initialized");
     }
 
     public void RedistributeItems()
@@ -108,12 +114,12 @@ public class ItemManager(
                     continue;
 
                 usedPositions[stage].Add(position);
-
+                
+                item.Dummy.IsIt = false;
                 item.Dummy.Stage = stage;
                 item.Dummy.Position = position;
-                item.Dummy.IsIt = false;
-                item.ReadyToCollect = true;
                 item.Dummy.Act = 419;
+                item.ReadyToCollect = true;
                 counter = 10;
             }
         }
@@ -142,8 +148,11 @@ public class ItemManager(
             .GetAwaiter().GetResult();
         item.Costume = new CostumePacket { BodyName = attribute.BodyName, CapName = attribute.CapName };
         item.Dummy.Costume = item.Costume;
-        item.Dummy.CurrentGameMode = GameMode.HideAndSeek;
-        item.Dummy.IsIt = true;
+        item.Dummy.BroadcastPacket(new TagPacket
+        {
+            GameMode = GameMode.HideAndSeek,
+            IsIt = true
+        });
         _activeItems.Add(item);
         return item;
     }
@@ -181,11 +190,43 @@ public class ItemManager(
         _source?.Cancel();
     }
 
+    private void OnPlayerAction(PlayerActionEventArgs eventArgs)
+    {
+        switch (eventArgs.Action)
+        {
+            case PlayerAction.Death:
+                foreach (var item in _activeItems)
+                {
+                    if (item.ActivePlayer == eventArgs.Player)
+                        item.ReturnItemToPool();
+                }
+                break;
+        }
+    }
+
+    private void OnPacket(PacketReceivedEventArgs args)
+    {
+        switch (args.Packet)
+        {
+            case TagPacket tagPacket:
+                if (!tagPacket.UpdateType.HasFlag(TagPacket.TagUpdate.State))
+                    return;
+                
+                foreach (var item in _activeItems)
+                {
+                    if (item.ActivePlayer == args.Sender.Player)
+                        item.ReturnItemToPool();
+                }
+                break;
+        }
+    }
+
     private void OnPlayerState(PlayerStateEventArgs args)
     {
         foreach (var item in _activeItems)
         {
-            if (!item.ReadyToCollect || args.Player.Stage != item.Dummy.Stage || args.Player.IsIt)
+            if (!item.ReadyToCollect || args.Player.Stage != item.Dummy.Stage ||
+                (args.Player.IsIt && !Config.SeekerDestroyItem))
                 continue;
 
             var distanceSquared = Vector3.DistanceSquared(item.Dummy.Position, args.Player.Position);
@@ -195,11 +236,18 @@ public class ItemManager(
                 if (!item.ReadyToCollect)
                     continue;
 
+                if (args.Player.IsIt)
+                {
+                    OnItemDestroyed.RaiseEvent(new ItemEventArgs { Item = item, Player = args.Player });
+                    item.ReturnItemToPool();
+                    continue;
+                }
+
                 item.ReadyToCollect = false;
-                item.Dummy.IsIt = true;
                 item.Dummy.Position = new Vector3(0, -10000f, 0);
                 item.Dummy.Stage = "";
                 item.ActivePlayer = args.Player;
+                item.Dummy.IsIt = true;
                 OnItemCollected.RaiseEvent(new ItemEventArgs { Item = item, Player = args.Player });
                 try
                 {

@@ -6,7 +6,7 @@ using DSMOOServer.Network.Packets;
 
 namespace OdysseyItems.Items;
 
-[Item(Name = "Invincibility", ShortName = "Star", BodyName = "MarioClown", CapName = "MarioClown")]
+[Item(Name = "Star", ShortName = "Star", BodyName = "MarioClown", CapName = "MarioClown")]
 public class Invincibility(EventManager eventManager, PlayerManager playerManager, ConfigHolder<Config> holder) : Item
 {
     private CancellationTokenSource _source;
