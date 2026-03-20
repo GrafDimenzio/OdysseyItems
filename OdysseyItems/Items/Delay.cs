@@ -9,9 +9,8 @@ namespace OdysseyItems.Items;
 [Item(Name = "Delay", ShortName = "Delay", BodyName = "MarioShopman", CapName = "MarioShopman")]
 public class Delay(EventManager eventManager, ConfigHolder<Config> holder) : Item
 {
-    private CancellationTokenSource _source = new();
-    
     private readonly ConcurrentQueue<PlayerPacket> _queue = new();
+    private CancellationTokenSource _source = new();
 
     public override void AfterInject()
     {
@@ -41,14 +40,11 @@ public class Delay(EventManager eventManager, ConfigHolder<Config> holder) : Ite
     {
         if (args.Player != ActivePlayer)
             return;
-        
+
         _queue.Enqueue(args.Packet);
         Task.Run(() => DelayPacket(_source.Token), _source.Token);
-        
-        if (_queue.TryPeek(out var packet))
-        {
-            args.Packet = packet;
-        }
+
+        if (_queue.TryPeek(out var packet)) args.Packet = packet;
     }
 
     private async Task DelayPacket(CancellationToken ct)
@@ -58,7 +54,7 @@ public class Delay(EventManager eventManager, ConfigHolder<Config> holder) : Ite
             return;
         _queue.TryDequeue(out _);
     }
-    
+
     private async Task ReturnItemTask(CancellationToken ct)
     {
         await Task.Delay(holder.Config.DelayTime * 1000, ct);

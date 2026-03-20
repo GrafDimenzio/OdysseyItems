@@ -16,7 +16,7 @@ public class SpawnCommand(PlayerManager manager, ConfigHolder<ItemLocations> hol
     public override CommandResult Execute(string command, string[] args, ICommandSender sender)
     {
         if (manager.PlayerCount == 0)
-            return new CommandResult()
+            return new CommandResult
             {
                 Message = "No Player is connected",
                 ResultType = ResultType.Error

@@ -11,7 +11,6 @@ public class KillItem(ConfigHolder<Config> holder, GameModeManager gameModeManag
     public override void OnCollected()
     {
         if (ActivePlayer != null)
-        {
             foreach (var player in gameModeManager.ActiveGame?.Players ?? [])
             {
                 if (player == ActivePlayer || !player.IsIt)
@@ -20,7 +19,7 @@ public class KillItem(ConfigHolder<Config> holder, GameModeManager gameModeManag
                 player.GetComponent<PlayerPlus>()?.SendMessage($"You were killed by {ActivePlayer.Name}");
                 player.GetComponent<PlayerPlus>()?.SetHealth(0);
             }
-        }
+
         ReturnItemToPool();
     }
 }

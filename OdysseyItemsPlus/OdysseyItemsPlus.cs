@@ -1,5 +1,4 @@
-﻿using DSMOOFramework.Managers;
-using DSMOOFramework.Plugins;
+﻿using DSMOOFramework.Plugins;
 using DSMOOPlus;
 using OdysseyItems;
 
@@ -11,7 +10,7 @@ namespace OdysseyItemsPlus;
     Author = "Dimenzio",
     Version = "1.0.0",
     Repository = "https://github.com/GrafDimenzio/OdysseyItems"
-    )]
+)]
 public class OdysseyItemsPlus(ItemManager itemManager) : Plugin<Config>
 {
     public override void Initialize()

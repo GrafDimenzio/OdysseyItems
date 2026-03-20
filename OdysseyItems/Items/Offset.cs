@@ -42,7 +42,7 @@ public class Offset(EventManager eventManager, ConfigHolder<Config> holder) : It
         var pos = new Vector3(args.Player.Position.X + holder.Config.Offset.X,
             args.Player.Position.Y + holder.Config.Offset.Y, args.Player.Position.Z + holder.Config.Offset.Z);
 
-        args.Packet = new PlayerPacket()
+        args.Packet = new PlayerPacket
         {
             Act = args.Packet.Act,
             SubAct = args.Packet.SubAct,

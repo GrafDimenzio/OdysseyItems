@@ -20,7 +20,7 @@ public class Escape(GameModeManager manager, StageManager stageManager, ConfigHo
         }
 
         List<string> possibleStages;
-        
+
         if (manager.ActiveGame.StagePreset.AllowAll)
         {
             possibleStages = stageManager.Stages.Select(x => x.StageName).ToList();
@@ -30,12 +30,12 @@ public class Escape(GameModeManager manager, StageManager stageManager, ConfigHo
             possibleStages = manager.ActiveGame.StagePreset.AllowedStages.ToList();
             possibleStages.AddRange(manager.ActiveGame.StagePreset.StartingStages);
         }
-        
+
         if (holder.Config.AlwaysOtherStageOnEscape)
             foreach (var stageName in possibleStages.ToList())
                 if (stageName == ActivePlayer.Stage)
                     possibleStages.Remove(stageName);
-        
+
         if (possibleStages.Count == 0)
             possibleStages = [manager.ActiveGame.StagePreset.StartingStages[0]];
         if (possibleStages.Count == 0)
@@ -43,20 +43,15 @@ public class Escape(GameModeManager manager, StageManager stageManager, ConfigHo
             ReturnItemToPool();
             return;
         }
-        
+
         var stage = possibleStages[_random.Next(0, possibleStages.Count)];
         var warps = stageManager.GetStageInfo(stage)?.Warps.ToList() ?? [];
         foreach (var warpName in warps.ToList())
-        {
             if (warpName.Position == Vector3.Zero)
                 warps.Remove(warpName);
-        }
 
         var warp = "";
-        if (warps.Count > 0)
-        {
-            warp = warps[_random.Next(warps.Count)].Name;
-        }
+        if (warps.Count > 0) warp = warps[_random.Next(warps.Count)].Name;
 
         ActivePlayer.ChangeStage(stage, warp);
         ReturnItemToPool();

@@ -43,8 +43,8 @@ public class ItemManager(
     private readonly Random _random = new();
 
     public readonly EventReactor<ItemEventArgs> OnItemCollected = new(eventLogger);
-    public readonly EventReactor<ItemEventArgs> OnItemReturned = new(eventLogger);
     public readonly EventReactor<ItemEventArgs> OnItemDestroyed = new(eventLogger);
+    public readonly EventReactor<ItemEventArgs> OnItemReturned = new(eventLogger);
     private CancellationTokenSource? _source;
 
     public ReadOnlyDictionary<ItemAttribute, Type> Items => _items.AsReadOnly();
@@ -114,7 +114,7 @@ public class ItemManager(
                     continue;
 
                 usedPositions[stage].Add(position);
-                
+
                 item.Dummy.IsIt = false;
                 item.Dummy.Stage = stage;
                 item.Dummy.Position = position;
@@ -134,6 +134,7 @@ public class ItemManager(
             Logger.Warn("No Items could be found that can be spawned. Check your EnabledItems Config!");
             return [];
         }
+
         for (var i = 0; i < Config.ItemAmount; i++) items.Add(possibleItems[_random.Next(possibleItems.Count)]);
         return items;
     }
@@ -196,10 +197,8 @@ public class ItemManager(
         {
             case PlayerAction.Death:
                 foreach (var item in _activeItems)
-                {
                     if (item.ActivePlayer == eventArgs.Player)
                         item.ReturnItemToPool();
-                }
                 break;
         }
     }
@@ -211,12 +210,10 @@ public class ItemManager(
             case TagPacket tagPacket:
                 if (!tagPacket.UpdateType.HasFlag(TagPacket.TagUpdate.State))
                     return;
-                
+
                 foreach (var item in _activeItems)
-                {
                     if (item.ActivePlayer == args.Sender.Player)
                         item.ReturnItemToPool();
-                }
                 break;
         }
     }

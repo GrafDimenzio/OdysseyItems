@@ -28,13 +28,14 @@ public class Invincibility(EventManager eventManager, PlayerManager playerManage
         {
             if (!player.IsIt || player == ActivePlayer) continue;
             //this will desync the player so that everyone is a hider and no one can tag him that way
-            ActivePlayer?.Send(new TagPacket()
+            ActivePlayer?.Send(new TagPacket
             {
                 IsIt = false,
                 GameMode = player.CurrentGameMode,
                 UpdateType = TagPacket.TagUpdate.State
             }, player.Id);
         }
+
         _source?.Cancel();
         _source = new CancellationTokenSource();
         Task.Run(() => ReturnItemTask(_source.Token), _source.Token);
@@ -53,6 +54,7 @@ public class Invincibility(EventManager eventManager, PlayerManager playerManage
                 UpdateType = TagPacket.TagUpdate.State
             }, player.Id);
         }
+
         _source?.Cancel();
     }
 
@@ -60,7 +62,7 @@ public class Invincibility(EventManager eventManager, PlayerManager playerManage
     {
         if (ActivePlayer == null || args.Sender.Id == ActivePlayer.Id)
             return;
-        
+
         switch (args.Packet)
         {
             case TagPacket tagPacket:
