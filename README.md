@@ -89,7 +89,15 @@ game start hideandseek cap default * 90 2
 
 - Only players in Hider-Mode can collect Items
 - Items appear in the player list:
-    - **Seekers**: Item not on the map.
-    - **Hiders**: Item available on the map.
+  - **Seekers**: Item not on the map.
+  - **Hiders**: Item available on the map.
 - While an item effect (like Invisibility) is active, it won’t respawn.
-- Multiple instances of the same item type can exist simultaneously. For example, if `ItemAmount = 4`, a single player could temporarily hold four Invisibility items.  
+- Multiple instances of the same item type can exist simultaneously. For example, if `ItemAmount = 4`, a single player could temporarily hold four Invisibility items.
+
+---
+
+## Adding more Item Spawn Locations
+
+All possible locations are stored in `item_locations.json`. You can add a new position using the `itemspawn` command. It will take the stage and position of the earliest connected player and store that position in the config automatically.
+
+It is recommended to be the only player on the server when setting new spawn locations. Walk to the desired position and type `itemspawn` in the console.
