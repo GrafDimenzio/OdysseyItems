@@ -2,6 +2,8 @@
 
 **OdysseyItems** is a plugin for the [DSMOO](https://github.com/GrafDimenzio/DSMOO) server for *Super Mario Odyssey Online*. It adds various collectible items to the game. Items are represented in-game by spinning Marios, and players can collect them simply by walking into them.
 
+[Download](https://github.com/GrafDimenzio/OdysseyItems/releases/latest)
+
 ---
 
 ## Table of Items
