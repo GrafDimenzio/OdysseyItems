@@ -54,6 +54,8 @@ game start hideandseek cap default * 90 2
     - `cap`: Cap Kingdom including all subareas (other stages banned).
     - `cap-nosub`: Only the main stage of Cap Kingdom.
     - `cap-all`: Start in Cap but allow all stages in the game.
+ 
+For further documention click [here](https://github.com/GrafDimenzio/DSMOO/wiki/GameCommand)
 
 ---
 
